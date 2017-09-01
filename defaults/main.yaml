@@ -1,0 +1,126 @@
+---
+
+############################# Platform #############################
+
+# The Confluent version to be installed
+confluent_major_version: 3.3
+
+# Scala version compliant which lays the groundwork of kafka brokers performing as the core part of Confluent platform, 
+# which is used by Confluent release team to be part of their official product name.
+confluent_scala_version: 2.11
+
+# Official product name of Confluent platform consisting of product name and underlying Scala version 
+confluent_pkg_name: confluent-platform-oss-{{ confluent_scala_version }}
+
+# Owner of Confluent platform in the targeted remote machines
+confluent_user: confluent
+
+# Group of owner
+confluent_group: confluent
+
+# Allow Confluent platfrom to gather some metrics proactively if true 
+confluent_suport_metrics_enable: true
+
+# The amount of replicas in terms of internal topic containing gathered metrics
+confluent_metrics_reporter_topic_replicas: 3
+
+############################# Zookeeper #############################
+
+# ZooKeeper node configuration directory
+zookeeper_config_dir: /etc/kafka
+
+# ZooKeeper node data directory containing snapshot of PathTries
+# Each instance will go the read data from this directory when service is starting up
+zookeeper_data_dir: /var/lib/zookeeper
+
+# Directory to write the transaction log to the dataLogDir rather than data dir
+zookeeper_data_log_dir: /var/log/zookeeper
+
+# Port to keep the communication channel between Follower/Observer and Leader. Nodes can apply this channel to accomlish the stuff like 
+# periodical heartbeaten, commit log votes. One spcial case is for observer which will not participate the vote phase of commit log.
+zookeeper_leader_port: 2888
+
+# Port for leader election
+zookeeper_election_port: 3888
+
+# Runtime Zk node log directory providing insights for server itself
+zookeeper_runtime_log_dirs: /var/log/kafka
+
+############################# Kafka Server #############################
+
+# Directory containing Kafka broker configuration files.
+kafka_config_dir: /etc/kafka
+
+# The address the socket server listens on. It will get the value returned from
+# java.net.InetAddress.getCanonicalHostName() if not configured.
+#   FORMAT:
+#     listeners = security_protocol://host_name:port
+#   EXAMPLE:
+#     listeners = PLAINTEXT://your.host.name:9092
+#listeners=PLAINTEXT://:9092
+kafka_listener_protocol: PLAINTEXT
+
+# Protocol the broker will advertise to producers and consumers
+kafka_advertised_listener_protocol: PLAINTEXT
+
+# Port the broker will advertise to producers and consumers
+kafka_advertised_listener_port: 9092
+
+
+# The number of threads handling network requests
+kafka_num_network_threads: 4
+
+# A comma seperated list of directories under which to store log files, containing all the core assets like Partition Logs, Segments, Replicas.
+# also is the location where the asynchronous write and read go to
+kafka_log_dirs: /var/lib/kafka/logs
+
+# The default number of log partitions per topic. More partitions allow greater
+# parallelism for consumption, but this will also result in more files across the brokers.
+kafka_num_partitions: 3
+
+# The minimum age of a log file to be eligible for deletion
+kafka_log_retention_hours: 168
+
+# Enable auto creation of topic on the server
+kafka_auto_create_topics_enable: true
+
+# Enables delete topic. Delete topic through the admin tool will have no
+# effect if this config is turned off
+kafka_delete_topic_enable: true
+
+# Default replication factor for automatically created topics.
+kafka_default_replication_factor: 3
+
+# Timeout in ms for connecting to zookeeper
+kafka_zookeeper_connection_timeout: 6000
+
+############################# Consumer #############################
+
+# Consumer group id for experimental usage
+kafka_consumer_group_id: kafka-consumer-group
+
+############################# Schema registry #############################
+
+# Directory where configurations about schema registry go to.
+schema_registry_config_dir: /etc/schema-registry
+
+# Compatibility level when reading data with different schema from current one.
+schema_avro_compatibility_level: backward
+
+# Server runtime tracing log
+schema_registry_log_dir: /var/log/schema-registry
+
+############################# Rest proxy #############################
+
+# Directory where configurations about rest proxy go to.
+restproxy_config_dir: /etc/kafka-rest
+
+# Number of threads to run consumer requests on, normally it can be line with partitions amount.
+# If setting it to be greater than partitions amount, no task will be assigned to part of consumers.
+restproxy_consumer_threads: 3
+
+# The maximum total time to wait for messages for a request if the maximum number of messages has not yet been reached.
+restproxy_consumer_timeout: 1000
+
+
+

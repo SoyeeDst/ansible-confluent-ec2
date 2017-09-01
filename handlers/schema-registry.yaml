@@ -1,0 +1,6 @@
+---
+
+- name: Restart Schemaregistry service
+  service: 
+    name: schemaregistry
+    state: restarted    

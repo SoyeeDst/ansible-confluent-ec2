@@ -1,0 +1,30 @@
+---
+
+  - name: Generate Rest proxy config
+    template:
+      src: restproxy.properties.j2
+      dest: '{{ restproxy_config_dir }}/kafka-rest.properties'
+    notify:
+      - Restart Restproxy service
+    tags:
+      - restproxy_config
+
+  - name: Template Rest proxy init.d service file
+    template:
+      src: restproxy.initd.j2
+      dest: /etc/init.d/restproxy
+      mode: 0755
+    notify:
+      - Reload initd
+      - Restart Restproxy service
+    when: ansible_distribution == "CentOS" and ansible_distribution_major_version == '6'
+    tags:
+      - restproxy_service
+
+  - name: Start Rest proxy service
+    service: 
+      name: restproxy
+      state: started
+      enabled: yes
+    tags:
+      - restproxy_service

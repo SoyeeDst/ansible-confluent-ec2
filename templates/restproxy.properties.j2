@@ -1,0 +1,55 @@
+# {{ ansible_managed }}
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+# Unique ID for this REST server instance. This is used in generating unique IDs for consumers that do not specify their ID. 
+# The ID is empty by default, which makes a single server setup easier to get up and running, 
+# but is not safe for multi-server deployments where automatic consumer IDs are used.
+id={{ hostvars[inventory_hostname]['restproxy_id'] }}
+
+# A list of Kafka brokers to connect to. For example, PLAINTEXT://hostname:9092,SSL://hostname2:9092. 
+# This configuration is particularly important when Kafka security is enabled, 
+# because Kafka may expose multiple endpoints that all will be stored in ZooKeeper, 
+# but Kafka REST may need to be configured with just one of those endpoints. The client will make 
+# use of all servers irrespective of which servers are specified here for bootstrapping—this list 
+# only impacts the initial hosts used to discover the full set of servers. 
+# Since these servers are just used for the initial connection to discover the full cluster membership (which may change dynamically), 
+# this list need not contain the full set of servers (you may want more than one, though, in case a server is down).
+bootstrap.servers={% for host in groups['confluent-nodes'] %}{{ kafka_listener_protocol }}://{{ hostvars[host]['ec2_private_dns_name'] }}:{{ kafka_listener_port }}{% if not loop.last %},{% endif %}{% endfor %}
+
+# Comma-separated list of listeners that listen for API requests over either HTTP or HTTPS. 
+# If a listener uses HTTPS, the appropriate SSL configuration parameters need to be set as well.
+listeners=http://0.0.0.0:{{ restproxy_listener_port }}
+
+# The base URL for the schema registry that should be used by the Avro serializer.
+schema.registry.url=http://{{ hostvars[inventory_hostname]['ec2_private_dns_name'] }}:{{ schema_registry_port }}
+
+# Specifies the ZooKeeper connection string in the form hostname:port where host and port are the host and port of a ZooKeeper server. 
+# To allow connecting through other ZooKeeper nodes when that ZooKeeper machine is down you can 
+# also specify multiple hosts in the form hostname1:port1,hostname2:port2,hostname3:port3.
+zookeeper.connect={{ kafka_zookeeper_connect }}
+
+# The maximum total time to wait for messages for a request if the maximum number of messages has not yet been reached.
+consumer.request.timeout.ms={{ restproxy_consumer_timeout }}
+
+# Number of threads to run consumer requests on.
+consumer.threads={{ restproxy_consumer_threads }}
+
+# The host name used to generate absolute URLs in responses.
+host.name={{ hostvars[inventory_hostname]['ec2_private_dns_name'] }}
+
+# Maximum number of SimpleConsumers that can be instantiated per broker.
+simpleconsumer.pool.size.max=2

@@ -1,0 +1,21 @@
+---
+
+- name: Reload initd
+  command: initctl reload-configuration
+
+# One issue was like Ansible doesn't support statically include handlers for different modules, only inline handlers included in this file will be effective during the runtime. Even worsely,
+# there is no any error message thrown by Ansible if no correpsonding handler is successfully retrieved which results in the events skipped silently. 
+# That is out of our expectation especially some key updates need to reload new configuration.
+#  
+# There is no official fix for this issue until now, subscribe this channel https://github.com/ansible/ansible/issues/13485 to get newest posts
+# 
+# Below is a walk around solution to solve this issue published in the discuss group https://groups.google.com/forum/#!msg/ansible-devel/9aJaoVeRdOg/B4TvRTLgCAAJ
+- include: zookeeper.yaml
+  static: yes
+- include: kafka.yaml
+  static: yes 
+- include: schema-registry.yaml
+  static: yes 
+- include: restproxy.yaml
+  static: yes 
+

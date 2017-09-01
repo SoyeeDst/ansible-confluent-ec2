@@ -1,0 +1,41 @@
+---
+  
+  - name: Generate Schema registry config
+    template:
+      src: schemaregistry.properties.j2
+      dest: '{{ schema_registry_config_dir }}/schema-registry.properties'
+    notify:
+      - Restart Schemaregistry service
+    tags:
+      - schema_registry_config
+
+  - name: Create Schema registry runtime log directory
+    file:
+      path: '{{ schema_registry_log_dir }}'
+      state: directory
+      owner: '{{ confluent_user }}'
+      group: '{{ confluent_group }}'
+    tags:
+      - schema_registry_config
+
+  - name: Template Schema registry init.d service file
+    template:
+      src: schemaregistry.initd.j2
+      dest: /etc/init.d/schemaregistry
+      mode: 0755
+    notify:
+      - Reload initd
+      - Restart Schemaregistry service
+    when: ansible_distribution == "CentOS" and ansible_distribution_major_version == '6'
+    tags:
+      - schemaregistry_service
+
+  - name: Start Schema registry service
+    service: 
+      name: schemaregistry
+      state: started
+      enabled: yes
+    tags:
+      - schemaregistry_service
+
+   

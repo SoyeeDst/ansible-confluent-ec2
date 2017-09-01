@@ -1,0 +1,6 @@
+---
+
+- name: Restart Restproxy service
+  service: 
+    name: restproxy
+    state: restarted

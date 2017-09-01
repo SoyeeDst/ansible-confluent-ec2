@@ -1,0 +1,74 @@
+---
+
+- name: Create Confluent group
+  group:
+    name: '{{ confluent_group }}'
+    state: present
+  tags:
+    - confluent_group
+
+- name: Create Confluent user
+  user:
+    name: '{{ confluent_user }}'
+    group: '{{ confluent_group }}'
+    state: present
+    createhome: no
+  tags:
+    - confluent_user
+
+- name: Check if YUM repos has imported the key to sign packages
+  rpm_key:
+    state: present
+    key: http://packages.confluent.io/rpm/{{ confluent_major_version }}/archive.key
+  tags:
+    - confluent_keyimport
+
+- name: Add Confluent YUM repository into repository set
+  yum_repository:
+    name: confluent
+    description: confluent repository
+    baseurl: http://packages.confluent.io/rpm/{{ confluent_major_version }}/
+    gpgkey: http://packages.confluent.io/rpm/{{ confluent_major_version }}/archive.key
+    gpgcheck: yes
+  become: true
+  become_user: root
+  tags:
+    - confluent_repoimport
+
+- name: Add Confluent YUM repository (dist) into repository set
+  yum_repository:
+    name: confluent-dist
+    description: confluent repository (dist)
+    baseurl: http://packages.confluent.io/rpm/{{ confluent_major_version }}/6
+    gpgkey: http://packages.confluent.io/rpm/{{ confluent_major_version }}/archive.key
+    gpgcheck: yes
+  become: true
+  become_user: root
+  tags:
+    - confluent_repoimport   
+
+- name: Clean up YUM metadata cache
+  command: yum clean all
+  args:
+    warn: no
+
+- name: Install Confluent solution
+  yum:
+     name: '{{ confluent_pkg_name }}'
+     state: present
+  become: true
+  become_user: root
+  tags:
+    - confluent_install
+
+- name: Install subsystems of Confluent solution
+  include: "{{ item }}.yaml"
+  with_items:
+    - zookeeper
+    - kafka
+    - schema-registry
+    - restproxy
+  tags:
+    - submodules_config
+
+    

@@ -1,0 +1,71 @@
+---
+
+- name: Create ZK data directory
+  file:
+    path: '{{ zookeeper_data_dir }}'
+    state: directory
+    owner: '{{ confluent_user }}'
+    group: '{{ confluent_group }}'
+  tags:
+    - zookeeper_config
+
+- name: Create ZK node runtime log directory
+  file:
+    path: '{{ zookeeper_runtime_log_dirs }}'
+    state: directory
+    owner: '{{ confluent_user }}'
+    group: '{{ confluent_group }}'
+  tags:
+    - zookeeper_config
+
+- name: Create ZK transaction log directory
+  file:
+    path: '{{ zookeeper_data_log_dir }}'
+    state: directory
+    owner: '{{ confluent_user }}'
+    group: '{{ confluent_group }}'
+  tags:
+    - zookeeper_config
+
+- name: Create current ZK node identifier
+  shell: echo {{ hostvars[inventory_hostname].zookeeper_id }} > {{ zookeeper_data_dir }}/myid
+  notify:
+    - Restart Zookeeper service
+  tags:
+    - zookeeper_config
+
+- name: Generate ZK node config
+  template:
+    src: zkserver.properties.j2
+    dest: '{{ zookeeper_config_dir }}/zookeeper.properties'
+  notify:
+    - Restart Zookeeper service
+  tags:
+    - zookeeper_config
+
+- name: Template ZK init.d service file
+  template:
+    src: zookeeper.initd.j2
+    dest: /etc/init.d/zookeeper
+    mode: 0755
+  notify:
+    - Reload initd
+    - Restart Zookeeper service
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == '6'
+  tags:
+    - zookeeper_service
+
+- name: Start ZK service
+  service: 
+    name: zookeeper
+    state: started
+    enabled: yes
+  tags:
+    - zookeeper_service
+
+
+
+
+
+
+

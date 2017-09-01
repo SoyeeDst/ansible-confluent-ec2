@@ -1,0 +1,54 @@
+---
+
+- name: Create log directory for Kafka
+  file:
+    path: '{{ kafka_log_dirs }}'
+    state: directory
+    owner: '{{ confluent_user }}'
+    group: '{{ confluent_group }}'
+
+  tags:
+    - kafka_broker_config
+
+- name: Generate Kafka broker config
+  template:
+    src: kafkaserver.properties.j2
+    dest: '{{ kafka_config_dir }}/server.properties'
+  notify:
+    - Restart Kafka service
+  tags:
+    - kafka_broker_config
+
+- name: Generate Kafka consumer config for testing purpose
+  template:
+    src: kafkaconsumer.properties.j2
+    dest: '{{ kafka_config_dir }}/consumer.properties'
+  tags:
+    - kafka_consumer_config
+
+- name: Generate Kafka producer config for testing purpose
+  template:
+    src: kafkaproducer.properties.j2
+    dest: '{{ kafka_config_dir }}/producer.properties'
+  tags:
+    - kafka_producer_config
+
+- name: Template Kafka init.d service file
+  template:
+    src: kafka.initd.j2
+    dest: /etc/init.d/kafka
+    mode: 0755
+  notify:
+    - Reload initd
+    - Restart Kafka service
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == '6'
+  tags:
+    - kafka_service
+
+- name: Start Kafka service
+  service: 
+    name: kafka
+    state: started
+    enabled: yes
+  tags:
+    - kafka_service

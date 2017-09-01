@@ -1,0 +1,64 @@
+#!/bin/bash
+#
+# Confluent Schemaregistry
+#
+# chkconfig: 345 30 70
+# description: Confluent Schemaregistry
+# processname: schemaregistry
+. /etc/init.d/functions
+
+RETVAL=0
+prog="schemaregistry"
+LOCKFILE=/var/lock/subsys/$prog
+
+start() {
+        echo -n "Starting $prog: "
+        export JAVA_HOME={{ java_jdk_dir }}
+        # Set log directory created previously in task to the variable for runtime log destiny, if not explicitly set, 
+        # using default directory would probably cause the service encounter permission issue and exit silently
+        export LOG_DIR={{ schema_registry_log_dir }}
+        /usr/bin/schema-registry-start -daemon {{ schema_registry_config_dir }}/schema-registry.properties
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && touch $LOCKFILE
+        echo
+        return $RETVAL
+}
+
+stop() {
+        echo -n "Shutting down $prog: "
+        export JAVA_HOME={{ java_jdk_dir }}
+        /usr/bin/schema-registry-stop && success || failure
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+        echo
+        return $RETVAL
+}
+
+status() {
+        echo -n "Checking $prog status: "
+
+        # TODO
+        #RETVAL=$?
+        return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
+exit $RETVAL
