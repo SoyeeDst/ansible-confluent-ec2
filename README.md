@@ -51,6 +51,7 @@ The Oracle Java 8 JDK role from Ansible Galaxy can be used if one is needed.
 | Kafka service | `/etc/init.d/kakfa` |
 | Schema registry | `/etc/init.d/schemaregistry` | 
 | Rest proxy | `/etc/init.d/restproxy` |
+| Kafka connect | `/etc/init.d/connect` |
 
 All the services are installed on runlevel 345 by default, updating the template to meet your own.
 
@@ -59,6 +60,7 @@ All the services are installed on runlevel 345 by default, updating the template
 * service kafka start
 * service schemaregistry start
 * service restproxy start
+* service connect start
 
 Attempts to reverse above actions to stop service gracefully
 
