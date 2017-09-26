@@ -1,15 +1,12 @@
 ---
 galaxy_info:
-  author: Simon Leigh
-  description: Apache Kafka installation for RHEL / CentOS 7
+  author: OrionHealth
+  description: Confluent installation for RHEL / CentOS 6
   license: MIT
   min_ansible_version: 2.x
   platforms:
     - name: EL
       versions:
       - all
-  galaxy_tags:
-    - kafka
-    - messaging
 
 dependencies: []

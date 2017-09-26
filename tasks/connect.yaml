@@ -1,0 +1,37 @@
+---
+
+- name: Generate connect node config
+  template:
+    src: connect.properties.j2
+    dest: '{{ schema_registry_config_dir }}/connect-avro-distributed.properties'
+  notify:
+    - Restart Connect service
+  tags:
+    - connect_config
+
+- name: Template connect init.d service file
+  template:
+    src: connect.initd.j2
+    dest: /etc/init.d/connect
+    mode: 0755
+  notify:
+    - Reload initd
+    - Restart Connect service
+  when: ansible_distribution == "CentOS" and ansible_distribution_major_version == '6'
+  tags:
+    - connect_service
+
+- name: Start Connect service
+  service: 
+    name: connect
+    state: started
+    enabled: yes
+  tags:
+    - connect_service
+
+
+
+
+
+
+

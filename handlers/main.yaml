@@ -17,5 +17,7 @@
 - include: schema-registry.yaml
   static: yes 
 - include: restproxy.yaml
+  static: yes
+- include: connect.yaml
   static: yes 
 

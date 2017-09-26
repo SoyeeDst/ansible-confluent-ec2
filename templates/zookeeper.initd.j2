@@ -12,31 +12,33 @@ prog="zookeeper"
 LOCKFILE=/var/lock/subsys/$prog
 
 start() {
-        echo -n "Starting $prog: "
-        export JAVA_HOME={{ java_jdk_dir }}
-        /usr/bin/zookeeper-server-start -daemon {{ zookeeper_config_dir }}/zookeeper.properties
-        RETVAL=$?
-        [ $RETVAL -eq 0 ] && touch $LOCKFILE
-        echo
-        return $RETVAL
+    echo -n "Starting $prog: "
+    export JAVA_HOME={{ java_jdk_dir }}
+    /usr/bin/zookeeper-server-start -daemon {{ zookeeper_config_dir }}/zookeeper.properties
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && touch $LOCKFILE
+    echo
+    return $RETVAL
 }
 
 stop() {
-        echo -n "Shutting down $prog: "
-        export JAVA_HOME={{ java_jdk_dir }}
-        /usr/bin/zookeeper-server-stop && success || failure
-        RETVAL=$?
-        [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
-        echo
-        return $RETVAL
+    echo -n "Shutting down $prog: "
+    export JAVA_HOME={{ java_jdk_dir }}
+    /usr/bin/zookeeper-server-stop && success || failure
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+    echo
+    return $RETVAL
 }
 
 status() {
-        echo -n "Checking $prog status: "
-
-        # TODO
-        #RETVAL=$?
-        return $RETVAL
+    echo -n "Checking $prog status: "
+    if [ -f $LOCKFILE ]; then
+       echo "Zookeeper service is running"
+    else 
+       echo "Zookeeper service is not running"
+    fi 
+    return $RETVAL
 }
 
 case "$1" in

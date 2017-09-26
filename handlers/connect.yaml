@@ -1,0 +1,6 @@
+---
+
+- name: Restart Connect service
+  service:
+    name: connect
+    state: restarted

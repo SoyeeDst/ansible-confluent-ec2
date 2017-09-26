@@ -79,7 +79,7 @@ kafka_log_dirs: /var/lib/kafka/logs
 kafka_num_partitions: 3
 
 # The minimum age of a log file to be eligible for deletion
-kafka_log_retention_hours: 168
+kafka_log_retention_hours: 720
 
 # Enable auto creation of topic on the server
 kafka_auto_create_topics_enable: true
@@ -122,5 +122,10 @@ restproxy_consumer_threads: 3
 # The maximum total time to wait for messages for a request if the maximum number of messages has not yet been reached.
 restproxy_consumer_timeout: 1000
 
+############################# Kafka connect #############################
+
+# The replication factor used when Kafka Connects creates the topic used to store connector offsets. 
+# This should always be at least 3 for a production system, but cannot be larger than the number of Kafka brokers in the cluster.
+connect_internal_topic_replicas: 3
 
 

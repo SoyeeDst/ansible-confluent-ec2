@@ -12,34 +12,36 @@ prog="kafka"
 LOCKFILE=/var/lock/subsys/$prog
 
 start() {
-        echo -n "Starting $prog: "
-        # sleep some time before starting Kafka service to ensure the original EPHEMERAL node to be removed
-        # otherwise Id collision would result in kafka broker exit silently
-        sleep `expr {{ kafka_zookeeper_connection_timeout }} / 1000 + 3`
-        export JAVA_HOME={{ java_jdk_dir }}
-        /usr/bin/kafka-server-start -daemon {{ kafka_config_dir }}/server.properties
-        RETVAL=$?
-        [ $RETVAL -eq 0 ] && touch $LOCKFILE
-        echo
-        return $RETVAL
+    echo -n "Starting $prog: "
+    # sleep some time before starting Kafka service to ensure the original EPHEMERAL node to be removed
+    # otherwise Id collision would result in kafka broker exit silently
+    sleep `expr {{ kafka_zookeeper_connection_timeout }} / 1000 + 3`
+    export JAVA_HOME={{ java_jdk_dir }}
+    /usr/bin/kafka-server-start -daemon {{ kafka_config_dir }}/server.properties
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && touch $LOCKFILE
+    echo
+    return $RETVAL
 }
 
 stop() {
-        echo -n "Shutting down $prog: "
-        export JAVA_HOME={{ java_jdk_dir }}
-        /usr/bin/kafka-server-stop && success || failure
-        RETVAL=$?
-        [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
-        echo
-        return $RETVAL
+    echo -n "Shutting down $prog: "
+    export JAVA_HOME={{ java_jdk_dir }}
+    /usr/bin/kafka-server-stop && success || failure
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && rm -f $LOCKFILE
+    echo
+    return $RETVAL
 }
 
 status() {
-        echo -n "Checking $prog status: "
-
-        # TODO
-        #RETVAL=$?
-        return $RETVAL
+    echo -n "Checking $prog status: "
+    if [ -f $LOCKFILE ]; then
+       echo "Kakfa service is running"
+    else 
+       echo "Kafka service is not running"
+    fi 
+    return $RETVAL
 }
 
 case "$1" in
